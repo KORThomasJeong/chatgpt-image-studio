@@ -23,25 +23,32 @@ const PRESETS = [
 export default function PromptComposer({
   value,
   onChange,
-  placeholder = 'Describe the image you want to create...',
-  maxLength = 4000,
+  placeholder = '생성하고 싶은 이미지를 설명하세요...',
+  maxLength = 32000,
   className = '',
 }: PromptComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (e.target.value.length <= maxLength) {
-      onChange(e.target.value)
-    }
+    onChange(e.target.value.slice(0, maxLength))
   }
 
   const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const text = e.clipboardData.getData('text')
-    const combined = value + text
-    if (combined.length <= maxLength) {
-      e.preventDefault()
-      onChange(combined)
-    }
+    if (!text) return
+    e.preventDefault()
+    const el = textareaRef.current
+    const start = el?.selectionStart ?? value.length
+    const end = el?.selectionEnd ?? value.length
+    const next = (value.slice(0, start) + text + value.slice(end)).slice(0, maxLength)
+    onChange(next)
+    // restore cursor after React re-render
+    requestAnimationFrame(() => {
+      if (el) {
+        const pos = Math.min(start + text.length, maxLength)
+        el.setSelectionRange(pos, pos)
+      }
+    })
   }
 
   const handlePreset = (preset: string) => {
@@ -117,7 +124,7 @@ export default function PromptComposer({
             letterSpacing: '0.05em',
           }}
         >
-          Quick Prompts
+          빠른 프롬프트
         </p>
         <div className="flex flex-wrap gap-2">
           {PRESETS.map((preset) => (
