@@ -16,7 +16,7 @@ from app.security import (
     verify_password,
 )
 
-router = APIRouter()
+router = APIRouter(redirect_slashes=False)
 
 
 # ---------------------------------------------------------------------------

@@ -76,6 +76,7 @@ app = FastAPI(
     title="ChatGPT Image Studio",
     version="0.1.0",
     lifespan=lifespan,
+    redirect_slashes=False,
 )
 
 # CORS — allow all origins during development; tighten in production.
@@ -106,7 +107,7 @@ except ImportError:
 
 try:
     from app.routers.users import users_router  # type: ignore[import]
-    app.include_router(users_router, prefix="/api/users", tags=["users"])
+    app.include_router(users_router, prefix="/api/admin/users", tags=["users"])
 except ImportError:
     logger.warning("app.routers.users not found — /api/users endpoints unavailable.")
 

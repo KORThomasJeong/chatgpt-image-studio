@@ -20,7 +20,7 @@ from app.models import Image, User
 from app.security import decrypt_api_key, get_current_user
 from app.services.openai_images import edit_image, generate_image
 
-images_router = APIRouter(tags=["images"])
+images_router = APIRouter(tags=["images"], redirect_slashes=False)
 
 # ---------------------------------------------------------------------------
 # Pydantic schemas
@@ -34,7 +34,7 @@ class GenerateRequest(BaseModel):
     prompt: str
     model: str = ""  # empty = use server default
     size: str = "1024x1024"
-    quality: str = "standard"
+    quality: str = "auto"
     n: int = Field(default=1, ge=1, le=4)
 
 
@@ -210,7 +210,7 @@ async def edit(
         prompt=prompt,
         model=model,
         size=size,
-        quality="standard",
+        quality="auto",
         status="pending",
     )
     session.add(record)
@@ -264,7 +264,7 @@ async def edit(
 # ---------------------------------------------------------------------------
 
 
-@images_router.get("/", response_model=dict)
+@images_router.get("", response_model=dict)
 async def list_images(
     limit: int = Query(default=20, ge=1, le=100),
     cursor: Optional[str] = Query(default=None),

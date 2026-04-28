@@ -23,11 +23,18 @@ const SIZE_OPTIONS = [
   { label: '1024 × 1024 (Square)', value: '1024x1024' },
   { label: '1536 × 1024 (Landscape)', value: '1536x1024' },
   { label: '1024 × 1536 (Portrait)', value: '1024x1536' },
+  { label: '2048 × 2048 (Large Square)', value: '2048x2048' },
+  { label: '2048 × 1152 (Wide 16:9)', value: '2048x1152' },
+  { label: '1152 × 2048 (Tall 9:16)', value: '1152x2048' },
+  { label: '3840 × 2160 (4K Landscape)', value: '3840x2160' },
+  { label: '2160 × 3840 (4K Portrait)', value: '2160x3840' },
 ]
 
 const QUALITY_OPTIONS = [
-  { label: 'Standard', value: 'standard' },
-  { label: 'HD', value: 'hd' },
+  { label: 'Auto', value: 'auto' },
+  { label: 'Low', value: 'low' },
+  { label: 'Medium', value: 'medium' },
+  { label: 'High', value: 'high' },
 ]
 
 const COUNT_OPTIONS = [1, 2, 3, 4]
@@ -43,7 +50,7 @@ export default function GeneratePage() {
 
   const [prompt, setPrompt] = useState('')
   const [size, setSize] = useState('1024x1024')
-  const [quality, setQuality] = useState('standard')
+  const [quality, setQuality] = useState('auto')
   const [count, setCount] = useState(1)
   const [currentResults, setCurrentResults] = useState<ImageRecord[]>([])
 

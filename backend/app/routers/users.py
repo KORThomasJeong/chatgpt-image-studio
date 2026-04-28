@@ -14,7 +14,7 @@ from app.db import get_session
 from app.models import User
 from app.security import hash_password, require_admin
 
-users_router = APIRouter(tags=["users"])
+users_router = APIRouter(tags=["users"], redirect_slashes=False)
 
 # ---------------------------------------------------------------------------
 # Pydantic schemas
@@ -58,7 +58,7 @@ def _user_item(user: User) -> UserListItem:
 # ---------------------------------------------------------------------------
 
 
-@users_router.get("/", response_model=list[UserListItem])
+@users_router.get("", response_model=list[UserListItem])
 async def list_users(
     _admin: User = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
@@ -73,7 +73,7 @@ async def list_users(
 # ---------------------------------------------------------------------------
 
 
-@users_router.post("/", response_model=UserListItem, status_code=201)
+@users_router.post("", response_model=UserListItem, status_code=201)
 async def create_user(
     body: CreateUserRequest,
     _admin: User = Depends(require_admin),

@@ -1,23 +1,11 @@
 """
-OpenAI Images Service — raw HTTP via httpx, no SDK.
+OpenAI Images Service — uses the official openai Python SDK.
 """
-
 import base64
+import io
 
-import httpx
 from fastapi import HTTPException
-
-_TIMEOUT = 120.0
-_GENERATIONS_URL = "https://api.openai.com/v1/images/generations"
-_EDITS_URL = "https://api.openai.com/v1/images/edits"
-
-
-def _parse_openai_error(body: dict) -> str:
-    """Extract a human-readable message from an OpenAI error response."""
-    try:
-        return body["error"]["message"]
-    except (KeyError, TypeError):
-        return "Unknown OpenAI error"
+from openai import AsyncOpenAI, APIStatusError
 
 
 async def generate_image(
@@ -28,35 +16,25 @@ async def generate_image(
     n: int,
     api_key: str,
 ) -> list[bytes]:
-    """
-    Call the OpenAI generations endpoint and return a list of PNG bytes
-    (one per requested image).
-    """
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-    }
-    payload = {
-        "model": model,
-        "prompt": prompt,
-        "n": n,
-        "size": size,
-        "quality": quality,
-        "response_format": "b64_json",
-    }
+    """Call images.generate and return a list of PNG bytes (one per image)."""
+    client = AsyncOpenAI(api_key=api_key)
+    try:
+        response = await client.images.generate(
+            model=model,
+            prompt=prompt,
+            n=n,
+            size=size,  # type: ignore[arg-type]
+            quality=quality,  # type: ignore[arg-type]
+            response_format="b64_json",
+        )
+    except APIStatusError as exc:
+        msg = exc.message or str(exc)
+        raise HTTPException(status_code=502, detail=msg) from exc
 
-    async with httpx.AsyncClient(timeout=_TIMEOUT) as client:
-        response = await client.post(_GENERATIONS_URL, headers=headers, json=payload)
-
-    if response.status_code != 200:
-        error_msg = _parse_openai_error(response.json())
-        raise HTTPException(status_code=502, detail=error_msg)
-
-    data = response.json().get("data", [])
     result: list[bytes] = []
-    for item in data:
-        b64 = item.get("b64_json", "")
-        result.append(base64.b64decode(b64))
+    for item in response.data:
+        if item.b64_json:
+            result.append(base64.b64decode(item.b64_json))
     return result
 
 
@@ -68,43 +46,31 @@ async def edit_image(
     size: str,
     api_key: str,
 ) -> bytes:
-    """
-    Call the OpenAI image-edits endpoint (multipart) and return PNG bytes.
-    """
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-    }
+    """Call images.edit (multipart) and return PNG bytes."""
+    client = AsyncOpenAI(api_key=api_key)
 
-    # Build multipart fields
-    files: list[tuple] = [
-        ("image", ("image.png", image_bytes, "image/png")),
-    ]
-    if mask_bytes is not None:
-        files.append(("mask", ("mask.png", mask_bytes, "image/png")))
+    image_file = ("image.png", io.BytesIO(image_bytes), "image/png")
+    mask_file = ("mask.png", io.BytesIO(mask_bytes), "image/png") if mask_bytes else None
 
-    data = {
-        "model": model,
-        "prompt": prompt,
-        "n": "1",
-        "size": size,
-        "response_format": "b64_json",
-    }
-
-    async with httpx.AsyncClient(timeout=_TIMEOUT) as client:
-        response = await client.post(
-            _EDITS_URL,
-            headers=headers,
-            data=data,
-            files=files,
+    try:
+        kwargs: dict = dict(
+            model=model,
+            image=image_file,
+            prompt=prompt,
+            n=1,
+            size=size,  # type: ignore[arg-type]
+            response_format="b64_json",
         )
+        if mask_file is not None:
+            kwargs["mask"] = mask_file
 
-    if response.status_code != 200:
-        error_msg = _parse_openai_error(response.json())
-        raise HTTPException(status_code=502, detail=error_msg)
+        response = await client.images.edit(**kwargs)
+    except APIStatusError as exc:
+        msg = exc.message or str(exc)
+        raise HTTPException(status_code=502, detail=msg) from exc
 
-    items = response.json().get("data", [])
-    if not items:
+    items = response.data
+    if not items or not items[0].b64_json:
         raise HTTPException(status_code=502, detail="OpenAI returned no image data")
 
-    b64 = items[0].get("b64_json", "")
-    return base64.b64decode(b64)
+    return base64.b64decode(items[0].b64_json)

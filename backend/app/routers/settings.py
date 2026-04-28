@@ -13,7 +13,7 @@ from app.db import get_session
 from app.models import User
 from app.security import decrypt_api_key, encrypt_api_key, get_current_user, hash_password, verify_password
 
-settings_router = APIRouter(tags=["settings"])
+settings_router = APIRouter(tags=["settings"], redirect_slashes=False)
 
 # ---------------------------------------------------------------------------
 # Pydantic schemas
