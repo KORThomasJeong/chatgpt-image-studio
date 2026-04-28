@@ -34,12 +34,8 @@ function useImageBlob(imageId: string, status: string) {
     setLoading(true)
     setError(false)
     fetchImageBlob(imageId)
-      .then((url) => {
-        if (!cancelled) { setBlobUrl(url); setLoading(false) }
-      })
-      .catch(() => {
-        if (!cancelled) { setError(true); setLoading(false) }
-      })
+      .then((url) => { if (!cancelled) { setBlobUrl(url); setLoading(false) } })
+      .catch(() => { if (!cancelled) { setError(true); setLoading(false) } })
     return () => { cancelled = true }
   }, [imageId, status])
 
@@ -49,144 +45,96 @@ function useImageBlob(imageId: string, status: string) {
 // ─── Lightbox ────────────────────────────────────────────────────────────────
 
 function Lightbox({
-  blobUrl,
-  image,
-  onClose,
-  onDownload,
-  onShowPrompt,
-  onDelete,
+  blobUrl, image, onClose, onDownload, onDelete,
 }: {
   blobUrl: string
   image: ImageRecord
   onClose: () => void
   onDownload: () => void
-  onShowPrompt: () => void
   onDelete?: () => void
 }) {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', handler)
+      document.body.style.overflow = ''
+    }
   }, [onClose])
 
   return createPortal(
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 1000,
-          background: 'rgba(0,0,0,0.88)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '24px',
-        }}
-      >
-        {/* Toolbar */}
-        <div
-          onClick={(e) => e.stopPropagation()}
-          style={{
-            display: 'flex',
-            gap: '10px',
-            marginBottom: '16px',
-            alignItems: 'center',
-          }}
-        >
-          <LightboxBtn onClick={onDownload} title="다운로드" icon="⬇️" label="Download" />
-          <LightboxBtn onClick={onShowPrompt} title="프롬프트 보기" icon="📝" label="Prompt" />
-          {onDelete && (
-            <LightboxBtn onClick={onDelete} title="삭제" icon="🗑️" label="Delete" danger />
-          )}
-          <LightboxBtn onClick={onClose} title="닫기" icon="✕" label="Close" />
-        </div>
-
-        {/* Image */}
-        <motion.img
-          initial={{ scale: 0.92, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: 'spring', damping: 22, stiffness: 280 }}
-          src={blobUrl}
-          alt={image.prompt}
-          onClick={(e) => e.stopPropagation()}
-          style={{
-            maxWidth: '90vw',
-            maxHeight: '80vh',
-            objectFit: 'contain',
-            borderRadius: '12px',
-            boxShadow: '0 24px 80px rgba(0,0,0,0.6)',
-          }}
-          draggable={false}
-        />
-
-        {/* Meta */}
-        <div
-          onClick={(e) => e.stopPropagation()}
-          style={{
-            marginTop: '14px',
-            fontSize: '12px',
-            color: 'rgba(255,255,255,0.5)',
-            letterSpacing: '0.04em',
-          }}
-        >
-          {image.model} · {image.size} · {image.quality} · {new Date(image.created_at).toLocaleString()}
-        </div>
-      </motion.div>
-    </AnimatePresence>,
-    document.body,
-  )
-}
-
-function LightboxBtn({
-  onClick, title, icon, label, danger = false,
-}: {
-  onClick: () => void; title: string; icon: string; label: string; danger?: boolean
-}) {
-  return (
-    <button
-      onClick={onClick}
-      title={title}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
       style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '6px',
-        padding: '8px 14px',
-        borderRadius: '8px',
-        border: 'none',
-        background: danger ? 'rgba(239,68,68,0.8)' : 'rgba(255,255,255,0.12)',
-        color: '#fff',
-        fontSize: '13px',
-        fontWeight: 500,
-        cursor: 'pointer',
-        backdropFilter: 'blur(8px)',
-        transition: 'background 0.15s',
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLButtonElement).style.background = danger
-          ? 'rgba(239,68,68,1)' : 'rgba(255,255,255,0.22)'
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLButtonElement).style.background = danger
-          ? 'rgba(239,68,68,0.8)' : 'rgba(255,255,255,0.12)'
+        position: 'fixed', inset: 0, zIndex: 1000,
+        background: 'rgba(0,0,0,0.9)',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        padding: '20px',
       }}
     >
-      <span>{icon}</span>
-      <span>{label}</span>
-    </button>
+      {/* Toolbar */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}
+      >
+        {[
+          { icon: '⬇️', label: 'Download', action: onDownload, danger: false },
+          ...(onDelete ? [{ icon: '🗑️', label: 'Delete', action: onDelete, danger: true }] : []),
+          { icon: '✕', label: 'Close', action: onClose, danger: false },
+        ].map(({ icon, label, action, danger }) => (
+          <button
+            key={label}
+            onClick={action}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              padding: '7px 14px', borderRadius: '8px', border: 'none',
+              background: danger ? 'rgba(239,68,68,0.8)' : 'rgba(255,255,255,0.12)',
+              color: '#fff', fontSize: '13px', fontWeight: 500, cursor: 'pointer',
+              backdropFilter: 'blur(8px)',
+            }}
+          >
+            {icon} {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Image */}
+      <motion.img
+        initial={{ scale: 0.93, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: 'spring', damping: 22, stiffness: 280 }}
+        src={blobUrl}
+        alt={image.prompt}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          maxWidth: '90vw', maxHeight: '80vh',
+          objectFit: 'contain', borderRadius: '12px',
+          boxShadow: '0 24px 80px rgba(0,0,0,0.6)',
+        }}
+        draggable={false}
+      />
+
+      {/* Meta */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{ marginTop: '12px', fontSize: '12px', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.04em' }}
+      >
+        {image.model} · {image.size} · {image.quality} · {new Date(image.created_at).toLocaleString()}
+      </div>
+    </motion.div>,
+    document.body,
   )
 }
 
 // ─── Prompt Modal ─────────────────────────────────────────────────────────────
 
 function PromptModal({
-  prompt,
-  onClose,
-  onUse,
+  prompt, onClose, onUse,
 }: {
   prompt: string
   onClose: () => void
@@ -197,7 +145,11 @@ function PromptModal({
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', handler)
+      document.body.style.overflow = ''
+    }
   }, [onClose])
 
   const handleCopy = () => {
@@ -213,13 +165,9 @@ function PromptModal({
       exit={{ opacity: 0 }}
       onClick={onClose}
       style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 1100,
-        background: 'rgba(0,0,0,0.6)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        position: 'fixed', inset: 0, zIndex: 1100,
+        background: 'rgba(0,0,0,0.55)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: '24px',
       }}
     >
@@ -231,23 +179,18 @@ function PromptModal({
         style={{
           background: 'var(--color-surface)',
           border: '1px solid var(--color-border)',
-          borderRadius: '16px',
-          padding: '24px',
-          maxWidth: '560px',
-          width: '100%',
+          borderRadius: '16px', padding: '24px',
+          maxWidth: '560px', width: '100%',
           boxShadow: '0 24px 60px rgba(0,0,0,0.35)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
           <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
-            📝 Prompt
+            Prompt
           </h3>
           <button
             onClick={onClose}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              fontSize: '18px', color: 'var(--color-text-tertiary)', lineHeight: 1,
-            }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: 'var(--color-text-tertiary)', lineHeight: 1, padding: '2px 6px' }}
           >
             ✕
           </button>
@@ -255,17 +198,14 @@ function PromptModal({
 
         <p
           style={{
-            fontSize: '14px',
-            lineHeight: '1.7',
+            fontSize: '14px', lineHeight: '1.75',
             color: 'var(--color-text-primary)',
             background: 'var(--color-surface-raised)',
             border: '1px solid var(--color-border)',
-            borderRadius: '10px',
-            padding: '14px',
+            borderRadius: '10px', padding: '14px 16px',
             marginBottom: '16px',
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-            userSelect: 'text',
+            whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+            userSelect: 'text', maxHeight: '300px', overflowY: 'auto',
           }}
         >
           {prompt}
@@ -275,14 +215,11 @@ function PromptModal({
           <button
             onClick={handleCopy}
             style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
+              padding: '8px 16px', borderRadius: '8px',
               border: '1.5px solid var(--color-border)',
               background: 'var(--color-surface-raised)',
               color: 'var(--color-text-primary)',
-              fontSize: '13px',
-              fontWeight: 500,
-              cursor: 'pointer',
+              fontSize: '13px', fontWeight: 500, cursor: 'pointer',
             }}
           >
             {copied ? '✓ Copied!' : '📋 Copy'}
@@ -291,14 +228,9 @@ function PromptModal({
             <button
               onClick={() => { onUse(prompt); onClose() }}
               style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
-                border: 'none',
-                background: 'var(--color-primary)',
-                color: '#fff',
-                fontSize: '13px',
-                fontWeight: 500,
-                cursor: 'pointer',
+                padding: '8px 16px', borderRadius: '8px', border: 'none',
+                background: 'var(--color-primary)', color: '#fff',
+                fontSize: '13px', fontWeight: 500, cursor: 'pointer',
               }}
             >
               ✨ Use this prompt
@@ -344,18 +276,17 @@ export default function ImageCard({ image, onDelete, onCopyPrompt, className = '
 
   const isFailed = image.status === 'failed'
   const isPending = image.status === 'pending' || image.status === 'processing'
-  const isClickable = !!blobUrl && !isFailed
+  const isReady = !!blobUrl && !isFailed
 
   return (
     <>
       <motion.div
-        className={`relative rounded-xl overflow-hidden group ${className}`}
+        className={`relative rounded-xl overflow-hidden ${className}`}
         style={{
           background: 'var(--color-surface)',
           border: '1px solid var(--color-border)',
           boxShadow: hovered ? '0 8px 30px rgba(0,0,0,0.15)' : '0 1px 4px rgba(0,0,0,0.08)',
           transition: 'box-shadow 0.25s',
-          cursor: isClickable ? 'pointer' : 'default',
         }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -364,8 +295,12 @@ export default function ImageCard({ image, onDelete, onCopyPrompt, className = '
       >
         {/* Image area */}
         <div
-          style={{ position: 'relative', aspectRatio: '1 / 1', background: 'var(--color-surface-raised)', overflow: 'hidden' }}
-          onClick={() => { if (isClickable) setShowLightbox(true) }}
+          style={{
+            position: 'relative', aspectRatio: '1 / 1',
+            background: 'var(--color-surface-raised)', overflow: 'hidden',
+            cursor: isReady ? 'pointer' : 'default',
+          }}
+          onClick={() => { if (isReady) setShowLightbox(true) }}
         >
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center">
@@ -405,34 +340,24 @@ export default function ImageCard({ image, onDelete, onCopyPrompt, className = '
             />
           )}
 
-          {/* Hover overlay */}
+          {/* Hover overlay — preview / download / delete only */}
           <AnimatePresence>
-            {hovered && blobUrl && !isFailed && (
+            {hovered && isReady && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.18 }}
+                transition={{ duration: 0.15 }}
                 style={{
                   position: 'absolute', inset: 0,
-                  background: 'rgba(0,0,0,0.45)',
+                  background: 'rgba(0,0,0,0.42)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
                 }}
               >
-                <ActionButton
-                  onClick={(e) => { e.stopPropagation(); setShowLightbox(true) }}
-                  title="미리보기" icon="🔍"
-                />
-                <ActionButton
-                  onClick={(e) => { e.stopPropagation(); setShowPrompt(true) }}
-                  title="프롬프트 보기" icon="📝"
-                />
-                <ActionButton
-                  onClick={(e) => { e.stopPropagation(); handleDownload() }}
-                  title="다운로드" icon="⬇️"
-                />
+                <CircleBtn onClick={(e) => { e.stopPropagation(); setShowLightbox(true) }} title="미리보기" icon="🔍" />
+                <CircleBtn onClick={(e) => { e.stopPropagation(); handleDownload() }} title="다운로드" icon="⬇️" />
                 {onDelete && (
-                  <ActionButton
+                  <CircleBtn
                     onClick={(e) => { e.stopPropagation(); handleDelete() }}
                     title="삭제" icon={deleting ? '⏳' : '🗑️'}
                     danger disabled={deleting}
@@ -454,54 +379,73 @@ export default function ImageCard({ image, onDelete, onCopyPrompt, className = '
           )}
         </div>
 
-        {/* Footer */}
-        <div style={{ padding: '10px 12px 12px' }}>
-          <p
-            style={{
-              fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: '1.4',
-              display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-              overflow: 'hidden', marginBottom: '6px',
-            }}
-            title={image.prompt}
-          >
-            {image.prompt || 'No prompt'}
-          </p>
-          <div className="flex items-center justify-between gap-2">
+        {/* Footer — size/date + prompt button (no prompt text) */}
+        <div style={{ padding: '8px 12px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+          <div style={{ minWidth: 0 }}>
             <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              {image.kind === 'edit' ? 'Edit' : 'Generated'} · {image.size}
+              {image.kind === 'edit' ? 'Edit' : 'Gen'} · {image.size}
             </span>
-            <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)' }}>
+            <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', display: 'block' }}>
               {new Date(image.created_at).toLocaleDateString()}
             </span>
           </div>
+
+          {/* Prompt button — always visible, not tied to hover */}
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowPrompt(true) }}
+            title="프롬프트 보기"
+            style={{
+              flexShrink: 0,
+              display: 'flex', alignItems: 'center', gap: '4px',
+              padding: '5px 10px', borderRadius: '6px',
+              border: '1.5px solid var(--color-border)',
+              background: 'var(--color-surface-raised)',
+              color: 'var(--color-text-secondary)',
+              fontSize: '12px', fontWeight: 500, cursor: 'pointer',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--color-primary)'
+              ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--color-primary)'
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--color-border)'
+              ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--color-text-secondary)'
+            }}
+          >
+            📝 Prompt
+          </button>
         </div>
       </motion.div>
 
-      {/* Lightbox */}
-      {showLightbox && blobUrl && (
-        <Lightbox
-          blobUrl={blobUrl}
-          image={image}
-          onClose={() => setShowLightbox(false)}
-          onDownload={handleDownload}
-          onShowPrompt={() => { setShowLightbox(false); setShowPrompt(true) }}
-          onDelete={onDelete ? handleDelete : undefined}
-        />
-      )}
+      {/* Lightbox portal */}
+      <AnimatePresence>
+        {showLightbox && blobUrl && (
+          <Lightbox
+            blobUrl={blobUrl}
+            image={image}
+            onClose={() => setShowLightbox(false)}
+            onDownload={handleDownload}
+            onDelete={onDelete ? handleDelete : undefined}
+          />
+        )}
+      </AnimatePresence>
 
-      {/* Prompt modal */}
-      {showPrompt && (
-        <PromptModal
-          prompt={image.prompt}
-          onClose={() => setShowPrompt(false)}
-          onUse={onCopyPrompt}
-        />
-      )}
+      {/* Prompt modal portal */}
+      <AnimatePresence>
+        {showPrompt && (
+          <PromptModal
+            prompt={image.prompt}
+            onClose={() => setShowPrompt(false)}
+            onUse={onCopyPrompt}
+          />
+        )}
+      </AnimatePresence>
     </>
   )
 }
 
-function ActionButton({
+function CircleBtn({
   onClick, title, icon, danger = false, disabled = false,
 }: {
   onClick: (e: React.MouseEvent) => void
@@ -524,7 +468,6 @@ function ActionButton({
         cursor: disabled ? 'not-allowed' : 'pointer',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         backdropFilter: 'blur(4px)',
-        transition: 'background 0.15s',
         opacity: disabled ? 0.6 : 1,
       }}
     >
