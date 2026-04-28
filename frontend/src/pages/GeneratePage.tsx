@@ -20,21 +20,21 @@ interface ImageRecord {
 }
 
 const SIZE_OPTIONS = [
-  { label: '1024 × 1024 (Square)', value: '1024x1024' },
-  { label: '1536 × 1024 (Landscape)', value: '1536x1024' },
-  { label: '1024 × 1536 (Portrait)', value: '1024x1536' },
-  { label: '2048 × 2048 (Large Square)', value: '2048x2048' },
-  { label: '2048 × 1152 (Wide 16:9)', value: '2048x1152' },
-  { label: '1152 × 2048 (Tall 9:16)', value: '1152x2048' },
-  { label: '3840 × 2160 (4K Landscape)', value: '3840x2160' },
-  { label: '2160 × 3840 (4K Portrait)', value: '2160x3840' },
+  { label: '1024 × 1024 (정사각형)', value: '1024x1024' },
+  { label: '1536 × 1024 (가로형)', value: '1536x1024' },
+  { label: '1024 × 1536 (세로형)', value: '1024x1536' },
+  { label: '2048 × 2048 (대형 정사각형)', value: '2048x2048' },
+  { label: '2048 × 1152 (와이드 16:9)', value: '2048x1152' },
+  { label: '1152 × 2048 (세로 9:16)', value: '1152x2048' },
+  { label: '3840 × 2160 (4K 가로형)', value: '3840x2160' },
+  { label: '2160 × 3840 (4K 세로형)', value: '2160x3840' },
 ]
 
 const QUALITY_OPTIONS = [
-  { label: 'Auto', value: 'auto' },
-  { label: 'Low', value: 'low' },
-  { label: 'Medium', value: 'medium' },
-  { label: 'High', value: 'high' },
+  { label: '자동', value: 'auto' },
+  { label: '낮음', value: 'low' },
+  { label: '보통', value: 'medium' },
+  { label: '높음', value: 'high' },
 ]
 
 const COUNT_OPTIONS = [1, 2, 3, 4]
@@ -74,12 +74,12 @@ export default function GeneratePage() {
     onSuccess: (data) => {
       setCurrentResults(data)
       queryClient.invalidateQueries({ queryKey: ['images'] })
-      toast({ title: 'Images generated!', variant: 'success' })
+      toast({ title: '이미지가 생성되었습니다!', variant: 'success' })
     },
     onError: (err: Error) => {
       toast({
-        title: 'Generation failed',
-        description: err.message ?? 'Something went wrong.',
+        title: '이미지 생성 실패',
+        description: err.message ?? '오류가 발생했습니다.',
         variant: 'error',
       })
     },
@@ -87,7 +87,7 @@ export default function GeneratePage() {
 
   const handleGenerate = () => {
     if (!prompt.trim()) {
-      toast({ title: 'Please enter a prompt', variant: 'error' })
+      toast({ title: '프롬프트를 입력해 주세요', variant: 'error' })
       return
     }
     mutation.mutate()
@@ -100,7 +100,7 @@ export default function GeneratePage() {
 
   const handleCopyPrompt = (p: string) => {
     setPrompt(p)
-    toast({ title: 'Prompt copied!', variant: 'success' })
+    toast({ title: '프롬프트가 복사되었습니다!', variant: 'success' })
   }
 
   const recentImages = recentData?.items ?? []
@@ -123,10 +123,10 @@ export default function GeneratePage() {
               marginBottom: '6px',
             }}
           >
-            Generate Images
+            이미지 생성
           </h1>
           <p style={{ color: 'var(--color-text-secondary)', fontSize: '15px' }}>
-            Describe your vision and let AI bring it to life.
+            원하는 이미지를 설명하면 AI가 만들어 드립니다.
           </p>
         </div>
 
@@ -147,7 +147,7 @@ export default function GeneratePage() {
                 <PromptComposer
                   value={prompt}
                   onChange={setPrompt}
-                  placeholder="A majestic dragon soaring over misty mountains at sunset..."
+                  placeholder="노을 지는 안개 낀 산 위를 날아다니는 웅장한 용..."
                 />
 
                 <div
@@ -166,7 +166,7 @@ export default function GeneratePage() {
                         marginBottom: '8px',
                       }}
                     >
-                      Model
+                      모델
                     </p>
                     <div
                       style={{
@@ -186,7 +186,7 @@ export default function GeneratePage() {
                     </div>
                   </div>
                   <Select
-                    label="Quality"
+                    label="품질"
                     value={quality}
                     onChange={setQuality}
                     options={QUALITY_OPTIONS}
@@ -194,7 +194,7 @@ export default function GeneratePage() {
                 </div>
 
                 <Select
-                  label="Size"
+                  label="크기"
                   value={size}
                   onChange={setSize}
                   options={SIZE_OPTIONS}
@@ -210,7 +210,7 @@ export default function GeneratePage() {
                       marginBottom: '8px',
                     }}
                   >
-                    Number of images
+                    생성 개수
                   </p>
                   <div className="flex gap-2">
                     {COUNT_OPTIONS.map((n) => (
@@ -249,7 +249,7 @@ export default function GeneratePage() {
                   leftIcon={mutation.isPending ? undefined : <span>✨</span>}
                   className="w-full"
                 >
-                  {mutation.isPending ? 'Generating…' : 'Generate Images'}
+                  {mutation.isPending ? '생성 중…' : '이미지 생성'}
                 </Button>
 
                 <p
@@ -259,7 +259,7 @@ export default function GeneratePage() {
                     textAlign: 'center',
                   }}
                 >
-                  Image generation may take 15–60 seconds
+                  이미지 생성에 15~60초 정도 소요될 수 있습니다
                 </p>
               </div>
             </Card>
@@ -279,7 +279,7 @@ export default function GeneratePage() {
                       fontWeight: 500,
                     }}
                   >
-                    Generating {count} image{count > 1 ? 's' : ''}…
+                    {count}개 이미지 생성 중…
                   </p>
                   <div
                     style={{
@@ -305,7 +305,7 @@ export default function GeneratePage() {
                       fontWeight: 500,
                     }}
                   >
-                    Generated {currentResults.length} image{currentResults.length > 1 ? 's' : ''}
+                    {currentResults.length}개 이미지 생성 완료
                   </p>
                   <div
                     style={{
@@ -346,7 +346,7 @@ export default function GeneratePage() {
                       color: 'var(--color-text-primary)',
                     }}
                   >
-                    Recent Images
+                    최근 이미지
                   </p>
                   <Link
                     to="/gallery"
@@ -357,7 +357,7 @@ export default function GeneratePage() {
                       fontWeight: 500,
                     }}
                   >
-                    View All →
+                    전체 보기 →
                   </Link>
                 </div>
                 <div
@@ -371,6 +371,7 @@ export default function GeneratePage() {
                     <ImageCard
                       key={img.id}
                       image={img}
+                      onDelete={handleDeleteResult}
                       onCopyPrompt={handleCopyPrompt}
                     />
                   ))}
@@ -412,11 +413,10 @@ function EmptyState() {
             marginBottom: '6px',
           }}
         >
-          Your canvas awaits
+          캔버스가 기다리고 있습니다
         </p>
         <p style={{ fontSize: '14px', color: 'var(--color-text-tertiary)', maxWidth: '280px' }}>
-          Enter a prompt on the left and click <strong>Generate Images</strong> to see your
-          creations appear here.
+          왼쪽에서 프롬프트를 입력하고 <strong>이미지 생성</strong>을 클릭하면 여기에 결과물이 나타납니다.
         </p>
       </div>
     </motion.div>

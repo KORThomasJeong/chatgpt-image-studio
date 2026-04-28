@@ -20,14 +20,14 @@ interface ImageRecord {
 }
 
 const SIZE_OPTIONS = [
-  { label: '1024 × 1024 (Square)', value: '1024x1024' },
-  { label: '1536 × 1024 (Landscape)', value: '1536x1024' },
-  { label: '1024 × 1536 (Portrait)', value: '1024x1536' },
-  { label: '2048 × 2048 (Large Square)', value: '2048x2048' },
-  { label: '2048 × 1152 (Wide 16:9)', value: '2048x1152' },
-  { label: '1152 × 2048 (Tall 9:16)', value: '1152x2048' },
-  { label: '3840 × 2160 (4K Landscape)', value: '3840x2160' },
-  { label: '2160 × 3840 (4K Portrait)', value: '2160x3840' },
+  { label: '1024 × 1024 (정사각형)', value: '1024x1024' },
+  { label: '1536 × 1024 (가로형)', value: '1536x1024' },
+  { label: '1024 × 1536 (세로형)', value: '1024x1536' },
+  { label: '2048 × 2048 (대형 정사각형)', value: '2048x2048' },
+  { label: '2048 × 1152 (와이드 16:9)', value: '2048x1152' },
+  { label: '1152 × 2048 (세로 9:16)', value: '1152x2048' },
+  { label: '3840 × 2160 (4K 가로형)', value: '3840x2160' },
+  { label: '2160 × 3840 (4K 세로형)', value: '2160x3840' },
 ]
 
 const pageVariants = {
@@ -59,8 +59,9 @@ export default function EditPage() {
   const [isDragOver, setIsDragOver] = useState(false)
 
   const loadFile = (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      toast({ title: 'Please upload an image file', variant: 'error' })
+    // Allow empty type (clipboard items) or non-image types only block non-image explicit types
+    if (file.type && !file.type.startsWith('image/')) {
+      toast({ title: '이미지 파일을 업로드해 주세요', variant: 'error' })
       return
     }
     const url = URL.createObjectURL(file)
@@ -144,12 +145,12 @@ export default function EditPage() {
     onSuccess: (data) => {
       setResultImage(data)
       queryClient.invalidateQueries({ queryKey: ['images'] })
-      toast({ title: 'Image edited successfully!', variant: 'success' })
+      toast({ title: '이미지가 성공적으로 편집되었습니다!', variant: 'success' })
     },
     onError: (err: Error) => {
       toast({
-        title: 'Edit failed',
-        description: err.message ?? 'Something went wrong.',
+        title: '이미지 편집 실패',
+        description: err.message ?? '오류가 발생했습니다.',
         variant: 'error',
       })
     },
@@ -175,10 +176,10 @@ export default function EditPage() {
               marginBottom: '6px',
             }}
           >
-            Edit Image
+            이미지 편집
           </h1>
           <p style={{ color: 'var(--color-text-secondary)', fontSize: '15px' }}>
-            Upload an image, paint the areas to edit, and describe the changes.
+            이미지를 업로드하고, 편집할 영역을 칠한 다음 변경 내용을 설명하세요.
           </p>
         </div>
 
@@ -202,7 +203,7 @@ export default function EditPage() {
                       color: 'var(--color-text-primary)',
                     }}
                   >
-                    Source Image
+                    원본 이미지
                   </h2>
                   {imageFile && (
                     <button
@@ -216,7 +217,7 @@ export default function EditPage() {
                         fontWeight: 500,
                       }}
                     >
-                      Clear ✕
+                      초기화 ✕
                     </button>
                   )}
                 </div>
@@ -248,13 +249,13 @@ export default function EditPage() {
                         marginBottom: '6px',
                       }}
                     >
-                      Drop an image here
+                      이미지를 여기에 놓으세요
                     </p>
                     <p style={{ fontSize: '13px', color: 'var(--color-text-tertiary)', marginBottom: '16px' }}>
                       클릭하거나 드래그, 또는 <kbd style={{ padding: '1px 5px', borderRadius: '4px', border: '1px solid var(--color-border)', background: 'var(--color-surface-raised)', fontSize: '12px' }}>Ctrl+V</kbd> 로 붙여넣기
                     </p>
                     <Button variant="secondary" size="sm">
-                      Choose File
+                      파일 선택
                     </Button>
                   </div>
                 ) : (
@@ -288,7 +289,7 @@ export default function EditPage() {
                   >
                     <span style={{ fontSize: '16px' }}>ℹ️</span>
                     <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-                      <strong>Tip:</strong> Paint over areas you want to edit. Unpainted regions stay unchanged.
+                      <strong>팁:</strong> 편집할 영역 위에 칠하세요. 칠하지 않은 부분은 그대로 유지됩니다.
                     </p>
                   </div>
                 )}
@@ -307,18 +308,18 @@ export default function EditPage() {
                     color: 'var(--color-text-primary)',
                   }}
                 >
-                  Edit Instructions
+                  편집 지시사항
                 </h2>
 
                 <PromptComposer
                   value={prompt}
                   onChange={setPrompt}
-                  placeholder="Replace the sky with a dramatic sunset, add northern lights..."
+                  placeholder="하늘을 극적인 노을로 바꾸고, 오로라를 추가하세요..."
                   maxLength={4000}
                 />
 
                 <Select
-                  label="Output Size"
+                  label="출력 크기"
                   value={size}
                   onChange={setSize}
                   options={SIZE_OPTIONS}
@@ -333,7 +334,7 @@ export default function EditPage() {
                   leftIcon={mutation.isPending ? undefined : <span>✏️</span>}
                   className="w-full"
                 >
-                  {mutation.isPending ? 'Editing…' : 'Edit Image'}
+                  {mutation.isPending ? '편집 중…' : '이미지 편집'}
                 </Button>
 
                 {!imageFile && (
@@ -344,7 +345,7 @@ export default function EditPage() {
                       textAlign: 'center',
                     }}
                   >
-                    Upload an image first to enable editing
+                    편집을 시작하려면 먼저 이미지를 업로드하세요
                   </p>
                 )}
               </div>
@@ -386,10 +387,10 @@ export default function EditPage() {
                     />
                   </div>
                   <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
-                    Editing your image…
+                    이미지를 편집하는 중…
                   </p>
                   <p style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>
-                    This may take 15–60 seconds
+                    15~60초 정도 소요될 수 있습니다
                   </p>
                 </div>
               </motion.div>
@@ -408,7 +409,7 @@ export default function EditPage() {
                     marginBottom: '10px',
                   }}
                 >
-                  Result
+                  결과
                 </p>
                 <ImageCard
                   image={resultImage}

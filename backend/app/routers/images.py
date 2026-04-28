@@ -6,9 +6,12 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
+import io
+
 import aiofiles
 import aiofiles.os
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
+from PIL import Image as PILImage
 from fastapi.responses import Response, StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import select
@@ -176,26 +179,34 @@ async def edit(
     session: AsyncSession = Depends(get_session),
 ) -> ImageResponse:
     model = model or settings.DEFAULT_IMAGE_MODEL
-    # Validate content type
-    if image.content_type not in _ALLOWED_MIME_TYPES:
-        raise HTTPException(
-            status_code=422,
-            detail=(
-                f"Image must be PNG, JPEG or WebP; got '{image.content_type}'"
-            ),
-        )
 
     # Read and size-check the source image
-    image_bytes = await image.read()
-    if len(image_bytes) > _MAX_UPLOAD_BYTES:
-        raise HTTPException(status_code=422, detail="Image exceeds 4 MB limit")
+    raw_bytes = await image.read()
+    if len(raw_bytes) > _MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=422, detail="이미지가 4MB를 초과합니다")
+
+    # Convert to RGBA PNG — OpenAI edit API requires PNG (RGBA preferred)
+    try:
+        pil_img = PILImage.open(io.BytesIO(raw_bytes)).convert("RGBA")
+        buf = io.BytesIO()
+        pil_img.save(buf, format="PNG")
+        image_bytes = buf.getvalue()
+    except Exception:
+        raise HTTPException(status_code=422, detail="이미지 파일을 처리할 수 없습니다")
 
     # Optionally read mask
     mask_bytes: bytes | None = None
     if mask is not None:
-        mask_bytes = await mask.read()
-        if len(mask_bytes) > _MAX_UPLOAD_BYTES:
-            raise HTTPException(status_code=422, detail="Mask exceeds 4 MB limit")
+        raw_mask = await mask.read()
+        if len(raw_mask) > _MAX_UPLOAD_BYTES:
+            raise HTTPException(status_code=422, detail="마스크가 4MB를 초과합니다")
+        try:
+            pil_mask = PILImage.open(io.BytesIO(raw_mask)).convert("RGBA")
+            buf = io.BytesIO()
+            pil_mask.save(buf, format="PNG")
+            mask_bytes = buf.getvalue()
+        except Exception:
+            raise HTTPException(status_code=422, detail="마스크 파일을 처리할 수 없습니다")
 
     api_key = _resolve_api_key(current_user)
     uploads_dir = os.path.join(settings.DATA_DIR, "uploads")
