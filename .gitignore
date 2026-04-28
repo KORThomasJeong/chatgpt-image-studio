@@ -1,0 +1,29 @@
+# Data volumes (host-mounted, do NOT commit)
+data/images/*
+data/uploads/*
+data/postgres/*
+!data/images/.gitkeep
+!data/uploads/.gitkeep
+!data/postgres/.gitkeep
+
+# Env
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+dist/
+*.egg
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
