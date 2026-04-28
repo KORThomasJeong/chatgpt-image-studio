@@ -124,3 +124,8 @@ except ImportError:
 @app.get("/api/health", tags=["health"])
 async def health_check():
     return {"status": "ok"}
+
+
+@app.get("/api/config", tags=["config"])
+async def get_config():
+    return {"default_model": settings.DEFAULT_IMAGE_MODEL}

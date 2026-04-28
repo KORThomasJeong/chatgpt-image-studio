@@ -50,7 +50,7 @@ class Image(Base):
     )
     kind: Mapped[str] = mapped_column(String(20), nullable=False)
     prompt: Mapped[str] = mapped_column(Text, nullable=False)
-    model: Mapped[str] = mapped_column(String(50), default="gpt-image-1", nullable=False)
+    model: Mapped[str] = mapped_column(String(50), default="gpt-image-2", nullable=False)
     size: Mapped[str] = mapped_column(String(20), default="1024x1024", nullable=False)
     quality: Mapped[str] = mapped_column(String(20), default="standard", nullable=False)
     file_path: Mapped[str | None] = mapped_column(String(500), nullable=True)

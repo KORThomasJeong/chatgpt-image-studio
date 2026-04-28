@@ -112,7 +112,7 @@ export default function EditPage() {
         formData.append('mask', maskBlob, 'mask.png')
       }
       formData.append('prompt', prompt.trim())
-      formData.append('model', 'gpt-image-1')
+      formData.append('model', 'gpt-image-2')
       formData.append('size', size)
       return editImageApi(formData)
     },

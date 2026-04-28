@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     ADMIN_USERNAME: str = "admin"
     ADMIN_PASSWORD: str = "admin"
     DATA_DIR: str = "/app/data"
+    DEFAULT_IMAGE_MODEL: str = "gpt-image-2"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 14
 

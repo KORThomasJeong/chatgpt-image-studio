@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { generateImageApi, listImagesApi } from '../lib/api'
+import { generateImageApi, listImagesApi, getServerConfigApi } from '../lib/api'
 import { Button, Card, Select, Spinner, Skeleton, useToast } from '../components/ui'
 import PromptComposer from '../components/PromptComposer'
 import ImageCard from '../components/ImageCard'
@@ -30,10 +30,6 @@ const QUALITY_OPTIONS = [
   { label: 'HD', value: 'hd' },
 ]
 
-const MODEL_OPTIONS = [
-  { label: 'GPT-Image-1', value: 'gpt-image-1' },
-]
-
 const COUNT_OPTIONS = [1, 2, 3, 4]
 
 const pageVariants = {
@@ -46,11 +42,18 @@ export default function GeneratePage() {
   const queryClient = useQueryClient()
 
   const [prompt, setPrompt] = useState('')
-  const [model, setModel] = useState('gpt-image-1')
   const [size, setSize] = useState('1024x1024')
   const [quality, setQuality] = useState('standard')
   const [count, setCount] = useState(1)
   const [currentResults, setCurrentResults] = useState<ImageRecord[]>([])
+
+  const { data: serverConfig } = useQuery({
+    queryKey: ['server-config'],
+    queryFn: getServerConfigApi,
+    staleTime: Infinity,
+  })
+
+  const effectiveModel = serverConfig?.default_model ?? 'gpt-image-2'
 
   const { data: recentData } = useQuery({
     queryKey: ['images', 'recent'],
@@ -60,7 +63,7 @@ export default function GeneratePage() {
 
   const mutation = useMutation({
     mutationFn: () =>
-      generateImageApi({ prompt: prompt.trim(), model, size, quality, n: count }),
+      generateImageApi({ prompt: prompt.trim(), model: effectiveModel, size, quality, n: count }),
     onSuccess: (data) => {
       setCurrentResults(data)
       queryClient.invalidateQueries({ queryKey: ['images'] })
@@ -147,12 +150,34 @@ export default function GeneratePage() {
                     gap: '14px',
                   }}
                 >
-                  <Select
-                    label="Model"
-                    value={model}
-                    onChange={setModel}
-                    options={MODEL_OPTIONS}
-                  />
+                  <div>
+                    <p
+                      style={{
+                        fontSize: '13px',
+                        fontWeight: 500,
+                        color: 'var(--color-text-secondary)',
+                        marginBottom: '8px',
+                      }}
+                    >
+                      Model
+                    </p>
+                    <div
+                      style={{
+                        height: '42px',
+                        padding: '0 12px',
+                        borderRadius: '10px',
+                        border: '1.5px solid var(--color-border)',
+                        background: 'var(--color-surface-raised)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        fontSize: '14px',
+                        color: 'var(--color-text-primary)',
+                        fontWeight: 500,
+                      }}
+                    >
+                      {effectiveModel}
+                    </div>
+                  </div>
                   <Select
                     label="Quality"
                     value={quality}

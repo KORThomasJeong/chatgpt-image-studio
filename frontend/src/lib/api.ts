@@ -274,3 +274,7 @@ export async function createUserApi(data: {
 export async function deleteUserApi(userId: number): Promise<void> {
   await apiJson(`/api/admin/users/${userId}`, { method: 'DELETE' })
 }
+
+export async function getServerConfigApi(): Promise<{ default_model: string }> {
+  return apiJson<{ default_model: string }>('/api/config')
+}

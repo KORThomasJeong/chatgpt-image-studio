@@ -32,7 +32,7 @@ _MAX_UPLOAD_BYTES = 4 * 1024 * 1024  # 4 MB
 
 class GenerateRequest(BaseModel):
     prompt: str
-    model: str = "gpt-image-1"
+    model: str = ""  # empty = use server default
     size: str = "1024x1024"
     quality: str = "standard"
     n: int = Field(default=1, ge=1, le=4)
@@ -96,6 +96,7 @@ async def generate(
     session: AsyncSession = Depends(get_session),
 ) -> list[ImageResponse]:
     api_key = _resolve_api_key(current_user)
+    model = body.model or settings.DEFAULT_IMAGE_MODEL
     images_dir = os.path.join(settings.DATA_DIR, "images")
     await _ensure_dir(images_dir)
 
@@ -106,7 +107,7 @@ async def generate(
             user_id=current_user.id,
             kind="generate",
             prompt=body.prompt,
-            model=body.model,
+            model=model,
             size=body.size,
             quality=body.quality,
             status="pending",
@@ -121,7 +122,7 @@ async def generate(
     try:
         image_bytes_list = await generate_image(
             prompt=body.prompt,
-            model=body.model,
+            model=model,
             size=body.size,
             quality=body.quality,
             n=body.n,
@@ -167,13 +168,14 @@ async def generate(
 @images_router.post("/edit", response_model=ImageResponse)
 async def edit(
     prompt: str = Form(...),
-    model: str = Form("gpt-image-1"),
+    model: str = Form(""),
     size: str = Form("1024x1024"),
     image: UploadFile = File(...),
     mask: Optional[UploadFile] = File(None),
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> ImageResponse:
+    model = model or settings.DEFAULT_IMAGE_MODEL
     # Validate content type
     if image.content_type not in _ALLOWED_MIME_TYPES:
         raise HTTPException(
