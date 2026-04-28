@@ -83,9 +83,9 @@ function Lightbox({
         style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}
       >
         {[
-          { icon: '⬇️', label: 'Download', action: onDownload, danger: false },
-          ...(onDelete ? [{ icon: '🗑️', label: 'Delete', action: onDelete, danger: true }] : []),
-          { icon: '✕', label: 'Close', action: onClose, danger: false },
+          { icon: '⬇️', label: '다운로드', action: onDownload, danger: false },
+          ...(onDelete ? [{ icon: '🗑️', label: '삭제', action: onDelete, danger: true }] : []),
+          { icon: '✕', label: '닫기', action: onClose, danger: false },
         ].map(({ icon, label, action, danger }) => (
           <button
             key={label}
@@ -186,7 +186,7 @@ function PromptModal({
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
           <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
-            Prompt
+            프롬프트
           </h3>
           <button
             onClick={onClose}
@@ -222,7 +222,7 @@ function PromptModal({
               fontSize: '13px', fontWeight: 500, cursor: 'pointer',
             }}
           >
-            {copied ? '✓ Copied!' : '📋 Copy'}
+            {copied ? '✓ 복사됨!' : '📋 복사'}
           </button>
           {onUse && (
             <button
@@ -233,7 +233,7 @@ function PromptModal({
                 fontSize: '13px', fontWeight: 500, cursor: 'pointer',
               }}
             >
-              ✨ Use this prompt
+              ✨ 이 프롬프트 사용
             </button>
           )}
         </div>
@@ -310,21 +310,37 @@ export default function ImageCard({ image, onDelete, onCopyPrompt, className = '
           {error && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
               <span style={{ fontSize: '32px' }}>⚠️</span>
-              <p style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>Failed to load</p>
+              <p style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>불러오기 실패</p>
             </div>
           )}
           {isPending && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
               <Spinner size="md" />
-              <p style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>Processing…</p>
+              <p style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>처리 중…</p>
             </div>
           )}
           {isFailed && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4">
               <span style={{ fontSize: '32px' }}>❌</span>
               <p style={{ fontSize: '12px', color: 'var(--color-error, #ef4444)', textAlign: 'center' }}>
-                {image.error_message ?? 'Generation failed'}
+                {image.error_message ?? '생성 실패'}
               </p>
+              {onDelete && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleDelete() }}
+                  disabled={deleting}
+                  style={{
+                    marginTop: '6px',
+                    padding: '5px 14px', borderRadius: '8px', border: 'none',
+                    background: 'rgba(239,68,68,0.85)', color: '#fff',
+                    fontSize: '12px', fontWeight: 500,
+                    cursor: deleting ? 'not-allowed' : 'pointer',
+                    opacity: deleting ? 0.6 : 1,
+                  }}
+                >
+                  {deleting ? '삭제 중…' : '🗑️ 삭제'}
+                </button>
+              )}
             </div>
           )}
           {blobUrl && !isFailed && (
@@ -369,12 +385,12 @@ export default function ImageCard({ image, onDelete, onCopyPrompt, className = '
 
           {isFailed && (
             <div style={{ position: 'absolute', top: '8px', right: '8px' }}>
-              <Badge variant="error">Failed</Badge>
+              <Badge variant="error">실패</Badge>
             </div>
           )}
           {isPending && (
             <div style={{ position: 'absolute', top: '8px', right: '8px' }}>
-              <Badge variant="warning">Processing</Badge>
+              <Badge variant="warning">처리 중</Badge>
             </div>
           )}
         </div>
@@ -383,7 +399,7 @@ export default function ImageCard({ image, onDelete, onCopyPrompt, className = '
         <div style={{ padding: '8px 12px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
           <div style={{ minWidth: 0 }}>
             <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              {image.kind === 'edit' ? 'Edit' : 'Gen'} · {image.size}
+              {image.kind === 'edit' ? '편집' : '생성'} · {image.size}
             </span>
             <span style={{ fontSize: '11px', color: 'var(--color-text-tertiary)', display: 'block' }}>
               {new Date(image.created_at).toLocaleDateString()}
@@ -413,7 +429,7 @@ export default function ImageCard({ image, onDelete, onCopyPrompt, className = '
               ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--color-text-secondary)'
             }}
           >
-            📝 Prompt
+            📝 프롬프트
           </button>
         </div>
       </motion.div>
