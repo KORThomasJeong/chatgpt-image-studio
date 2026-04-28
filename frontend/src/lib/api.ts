@@ -124,11 +124,10 @@ export async function loginApi(
   is_admin: boolean
   has_custom_key: boolean
 }> {
-  const body = new URLSearchParams({ username, password })
   const res = await fetch('/api/auth/login', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: body.toString(),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
   })
   if (!res.ok) {
     let message = `HTTP ${res.status}`
