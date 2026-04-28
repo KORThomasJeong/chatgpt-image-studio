@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react'
+import React, { useState, useRef, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { editImageApi } from '../lib/api'
@@ -105,6 +105,26 @@ export default function EditPage() {
 
   const handleMaskChange = useCallback((dataUrl: string | null) => {
     setMaskDataUrl(dataUrl)
+  }, [])
+
+  // Clipboard paste — Ctrl+V / Cmd+V anywhere on the page
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items
+      if (!items) return
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith('image/')) {
+          const file = item.getAsFile()
+          if (file) {
+            loadFile(file)
+            toast({ title: '클립보드 이미지가 붙여넣어졌습니다', variant: 'success' })
+          }
+          break
+        }
+      }
+    }
+    window.addEventListener('paste', handlePaste)
+    return () => window.removeEventListener('paste', handlePaste)
   }, [])
 
   const mutation = useMutation({
@@ -231,7 +251,7 @@ export default function EditPage() {
                       Drop an image here
                     </p>
                     <p style={{ fontSize: '13px', color: 'var(--color-text-tertiary)', marginBottom: '16px' }}>
-                      or click to browse — PNG, JPEG, WEBP
+                      클릭하거나 드래그, 또는 <kbd style={{ padding: '1px 5px', borderRadius: '4px', border: '1px solid var(--color-border)', background: 'var(--color-surface-raised)', fontSize: '12px' }}>Ctrl+V</kbd> 로 붙여넣기
                     </p>
                     <Button variant="secondary" size="sm">
                       Choose File
