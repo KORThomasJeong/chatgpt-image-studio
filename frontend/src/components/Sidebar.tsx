@@ -66,11 +66,11 @@ const CloseIcon = () => (
 )
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Generate', to: '/generate', icon: <SparklesIcon /> },
-  { label: 'Edit', to: '/edit', icon: <WandIcon /> },
-  { label: 'Gallery', to: '/gallery', icon: <GridIcon /> },
-  { label: 'Settings', to: '/settings', icon: <GearIcon /> },
-  { label: 'Admin', to: '/admin', icon: <AdminIcon />, adminOnly: true },
+  { label: '이미지 생성', to: '/generate', icon: <SparklesIcon /> },
+  { label: '이미지 편집', to: '/edit', icon: <WandIcon /> },
+  { label: '갤러리', to: '/gallery', icon: <GridIcon /> },
+  { label: '설정', to: '/settings', icon: <GearIcon /> },
+  { label: '관리자', to: '/admin', icon: <AdminIcon />, adminOnly: true },
 ]
 
 const SidebarContent: React.FC<{ onNavClick?: () => void }> = ({
@@ -142,8 +142,8 @@ const SidebarContent: React.FC<{ onNavClick?: () => void }> = ({
           </div>
           <button
             onClick={logout}
-            title="Logout"
-            aria-label="Logout"
+            title="로그아웃"
+            aria-label="로그아웃"
             className="shrink-0 p-1.5 rounded-md text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
           >
             <LogoutIcon />
@@ -171,7 +171,7 @@ export const Sidebar: React.FC = () => {
       <button
         className="md:hidden fixed top-4 left-4 z-40 p-2 rounded-lg bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-secondary)] shadow-sm"
         onClick={() => setMobileOpen(true)}
-        aria-label="Open menu"
+        aria-label="메뉴 열기"
       >
         <HamburgerIcon />
       </button>
@@ -201,7 +201,7 @@ export const Sidebar: React.FC = () => {
               <div className="flex justify-end p-2 absolute top-2 right-2">
                 <button
                   onClick={() => setMobileOpen(false)}
-                  aria-label="Close menu"
+                  aria-label="메뉴 닫기"
                   className="p-1.5 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors"
                 >
                   <CloseIcon />

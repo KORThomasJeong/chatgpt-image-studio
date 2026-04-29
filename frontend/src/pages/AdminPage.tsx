@@ -43,7 +43,7 @@ export default function AdminPage() {
         }}
       >
         <Spinner size="lg" />
-        <p style={{ color: 'var(--color-text-secondary)' }}>Checking permissions…</p>
+        <p style={{ color: 'var(--color-text-secondary)' }}>권한을 확인하는 중…</p>
       </div>
     )
   }
@@ -65,12 +65,12 @@ export default function AdminPage() {
                 color: 'var(--color-text-primary)',
               }}
             >
-              Admin Panel
+              관리자 패널
             </h1>
-            <Badge variant="warning">Admin Only</Badge>
+            <Badge variant="warning">관리자 전용</Badge>
           </div>
           <p style={{ color: 'var(--color-text-secondary)', fontSize: '15px' }}>
-            Manage users and system settings.
+            사용자 및 시스템 설정을 관리하세요.
           </p>
         </div>
 
@@ -104,11 +104,11 @@ function UserTable({
     mutationFn: (userId: number) => deleteUserApi(userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
-      toast({ title: 'User deleted', variant: 'success' })
+      toast({ title: '사용자가 삭제되었습니다', variant: 'success' })
       setDeleteTarget(null)
     },
     onError: (err: Error) => {
-      toast({ title: 'Failed to delete user', description: err.message, variant: 'error' })
+      toast({ title: '사용자 삭제 실패', description: err.message, variant: 'error' })
       setDeleteTarget(null)
     },
   })
@@ -132,7 +132,7 @@ function UserTable({
               color: 'var(--color-text-primary)',
             }}
           >
-            Users
+            사용자
           </h2>
           {!isLoading && users && (
             <span
@@ -142,7 +142,7 @@ function UserTable({
                 fontVariantNumeric: 'tabular-nums',
               }}
             >
-              {users.length} user{users.length !== 1 ? 's' : ''}
+              총 {users.length}명
             </span>
           )}
         </div>
@@ -155,7 +155,7 @@ function UserTable({
 
         {isError && (
           <p style={{ color: 'var(--color-error, #ef4444)', fontSize: '14px', padding: '16px 0' }}>
-            Failed to load users.
+            사용자 목록을 불러오지 못했습니다.
           </p>
         )}
 
@@ -164,7 +164,7 @@ function UserTable({
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
               <thead>
                 <tr>
-                  {['Username', 'Role', 'API Key', 'Created', 'Actions'].map((col) => (
+                  {['아이디', '역할', 'API 키', '생성일', '작업'].map((col) => (
                     <th
                       key={col}
                       style={{
@@ -235,7 +235,7 @@ function UserTable({
                                 color: 'var(--color-text-tertiary)',
                               }}
                             >
-                              (you)
+                              (나)
                             </span>
                           )}
                         </div>
@@ -243,12 +243,12 @@ function UserTable({
                     </td>
                     <td style={{ padding: '12px 14px' }}>
                       <Badge variant={u.is_admin ? 'warning' : 'default'}>
-                        {u.is_admin ? 'Admin' : 'User'}
+                        {u.is_admin ? '관리자' : '사용자'}
                       </Badge>
                     </td>
                     <td style={{ padding: '12px 14px' }}>
                       <Badge variant={u.has_custom_key ? 'success' : 'default'}>
-                        {u.has_custom_key ? 'Custom' : 'Server'}
+                        {u.has_custom_key ? '개인 키' : '서버 키'}
                       </Badge>
                     </td>
                     <td
@@ -268,7 +268,7 @@ function UserTable({
                           onClick={() => setDeleteTarget(u)}
                           disabled={!canDelete(u)}
                         >
-                          Delete
+                          삭제
                         </Button>
                         {!canDelete(u) && (
                           <span
@@ -277,7 +277,7 @@ function UserTable({
                               color: 'var(--color-text-tertiary)',
                             }}
                           >
-                            {u.id === currentUser.id ? "Can't delete self" : 'Last admin'}
+                            {u.id === currentUser.id ? '본인 삭제 불가' : '마지막 관리자'}
                           </span>
                         )}
                       </div>
@@ -294,19 +294,19 @@ function UserTable({
       <Dialog
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        title="Delete User"
+        title="사용자 삭제"
       >
         <div className="flex flex-col gap-5">
           <p style={{ color: 'var(--color-text-secondary)', fontSize: '15px', lineHeight: '1.5' }}>
-            Are you sure you want to delete{' '}
+            정말로{' '}
             <strong style={{ color: 'var(--color-text-primary)' }}>
               {deleteTarget?.username}
             </strong>
-            ? This action cannot be undone and all their images will be removed.
+            님을 삭제하시겠습니까? 이 작업은 되돌릴 수 없으며, 해당 사용자의 모든 이미지가 삭제됩니다.
           </p>
           <div className="flex gap-3 justify-end">
             <Button variant="secondary" size="md" onClick={() => setDeleteTarget(null)}>
-              Cancel
+              취소
             </Button>
             <Button
               variant="destructive"
@@ -316,7 +316,7 @@ function UserTable({
                 if (deleteTarget) deleteMutation.mutate(deleteTarget.id)
               }}
             >
-              Delete User
+              사용자 삭제
             </Button>
           </div>
         </div>
@@ -345,15 +345,15 @@ function AddUserPanel() {
       setIsAdmin(false)
       setFormError('')
       toast({
-        title: `User "${newUser.username}" created`,
+        title: `"${newUser.username}" 사용자가 생성되었습니다`,
         variant: 'success',
       })
     },
     onError: (err: Error) => {
-      const msg = err.message ?? 'Failed to create user'
+      const msg = err.message ?? '사용자 생성에 실패했습니다'
       setFormError(
         msg.toLowerCase().includes('exist') || msg.toLowerCase().includes('taken')
-          ? 'Username already taken'
+          ? '이미 사용 중인 아이디입니다'
           : msg
       )
     },
@@ -363,11 +363,11 @@ function AddUserPanel() {
     e.preventDefault()
     setFormError('')
     if (!username.trim()) {
-      setFormError('Username is required')
+      setFormError('아이디를 입력해 주세요')
       return
     }
     if (password.length < 8) {
-      setFormError('Password must be at least 8 characters')
+      setFormError('비밀번호는 최소 8자 이상이어야 합니다')
       return
     }
     mutation.mutate()
@@ -386,10 +386,10 @@ function AddUserPanel() {
                 marginBottom: '4px',
               }}
             >
-              Add New User
+              새 사용자 추가
             </h2>
             <p style={{ fontSize: '13px', color: 'var(--color-text-tertiary)' }}>
-              Create a new user account
+              새 사용자 계정을 생성하세요
             </p>
           </div>
 
@@ -401,7 +401,7 @@ function AddUserPanel() {
             }}
           >
             <Input
-              label="Username"
+              label="아이디"
               value={username}
               onChange={(e) => {
                 setUsername(e.target.value)
@@ -411,14 +411,14 @@ function AddUserPanel() {
               leftIcon={<span style={{ fontSize: '14px' }}>👤</span>}
             />
             <Input
-              label="Password"
+              label="비밀번호"
               type="password"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value)
                 setFormError('')
               }}
-              placeholder="At least 8 characters"
+              placeholder="최소 8자 이상"
             />
           </div>
 
@@ -463,10 +463,10 @@ function AddUserPanel() {
                   color: 'var(--color-text-primary)',
                 }}
               >
-                Administrator
+                관리자
               </p>
               <p style={{ fontSize: '12px', color: 'var(--color-text-tertiary)' }}>
-                Grants access to the Admin panel and user management
+                관리자 패널 접근 및 사용자 관리 권한을 부여합니다
               </p>
             </div>
           </div>
@@ -498,7 +498,7 @@ function AddUserPanel() {
             disabled={!username.trim() || !password || mutation.isPending}
             leftIcon={<span>➕</span>}
           >
-            Create User
+            사용자 생성
           </Button>
         </div>
       </form>

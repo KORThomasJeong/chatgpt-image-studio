@@ -69,7 +69,7 @@ export const Dialog: React.FC<DialogProps> = ({
                 <button
                   onClick={onClose}
                   className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors p-1 rounded-md hover:bg-[var(--bg-secondary)]"
-                  aria-label="Close dialog"
+                  aria-label="대화상자 닫기"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

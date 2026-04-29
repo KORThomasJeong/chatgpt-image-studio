@@ -42,10 +42,10 @@ export default function SettingsPage() {
               marginBottom: '6px',
             }}
           >
-            Settings
+            설정
           </h1>
           <p style={{ color: 'var(--color-text-secondary)', fontSize: '15px' }}>
-            Manage your account preferences and API configuration.
+            계정 환경설정 및 API 구성을 관리하세요.
           </p>
         </div>
 
@@ -86,10 +86,10 @@ function APIKeySection() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['openai-key-status'] })
       setKeyInput('')
-      toast({ title: 'API key saved', variant: 'success' })
+      toast({ title: 'API 키가 저장되었습니다', variant: 'success' })
     },
     onError: (err: Error) => {
-      toast({ title: 'Failed to save key', description: err.message, variant: 'error' })
+      toast({ title: '키 저장 실패', description: err.message, variant: 'error' })
     },
   })
 
@@ -97,10 +97,10 @@ function APIKeySection() {
     mutationFn: deleteOpenAIKeyApi,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['openai-key-status'] })
-      toast({ title: 'API key removed', variant: 'default' })
+      toast({ title: 'API 키가 삭제되었습니다', variant: 'default' })
     },
     onError: (err: Error) => {
-      toast({ title: 'Failed to remove key', description: err.message, variant: 'error' })
+      toast({ title: '키 삭제 실패', description: err.message, variant: 'error' })
     },
   })
 
@@ -120,15 +120,15 @@ function APIKeySection() {
                 marginBottom: '4px',
               }}
             >
-              OpenAI API Key
+              OpenAI API 키
             </h2>
             <p style={{ fontSize: '13px', color: 'var(--color-text-tertiary)' }}>
-              Override the server's default key with your own
+              서버 기본 키 대신 개인 키를 사용하세요
             </p>
           </div>
           {!isLoading && (
             <Badge variant={hasKey ? 'success' : 'default'}>
-              {hasKey ? 'Custom Key Active' : 'Server Key'}
+              {hasKey ? '개인 키 사용 중' : '서버 키'}
             </Badge>
           )}
         </div>
@@ -149,7 +149,7 @@ function APIKeySection() {
             }}
           >
             <span style={{ color: 'var(--color-success, #22c55e)' }}>●</span>
-            Current key: <strong>{keyPreview}</strong>
+            현재 키: <strong>{keyPreview}</strong>
           </div>
         )}
 
@@ -165,14 +165,13 @@ function APIKeySection() {
             lineHeight: '1.5',
           }}
         >
-          🔐 Your key is encrypted and stored securely. It overrides the server's default key for
-          all your requests.
+          🔐 키는 암호화되어 안전하게 저장됩니다. 모든 요청에서 서버 기본 키 대신 사용됩니다.
         </div>
 
         <div className="flex gap-3 items-end">
           <div style={{ flex: 1 }}>
             <Input
-              label="New API Key"
+              label="새 API 키"
               type={showKey ? 'text' : 'password'}
               value={keyInput}
               onChange={(e) => setKeyInput(e.target.value)}
@@ -186,7 +185,7 @@ function APIKeySection() {
             onClick={() => setShowKey((v) => !v)}
             style={{ marginBottom: '1px', flexShrink: 0 }}
           >
-            {showKey ? 'Hide' : 'Show'}
+            {showKey ? '숨기기' : '보기'}
           </Button>
         </div>
 
@@ -198,7 +197,7 @@ function APIKeySection() {
             isLoading={setKeyMutation.isPending}
             disabled={!keyInput.trim()}
           >
-            Save Key
+            키 저장
           </Button>
           {hasKey && (
             <Button
@@ -207,7 +206,7 @@ function APIKeySection() {
               onClick={() => deleteKeyMutation.mutate()}
               isLoading={deleteKeyMutation.isPending}
             >
-              Remove Key
+              키 삭제
             </Button>
           )}
         </div>
@@ -231,21 +230,21 @@ function ChangePasswordSection() {
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
-      toast({ title: 'Password changed successfully', variant: 'success' })
+      toast({ title: '비밀번호가 성공적으로 변경되었습니다', variant: 'success' })
     },
     onError: (err: Error) => {
-      toast({ title: 'Failed to change password', description: err.message, variant: 'error' })
+      toast({ title: '비밀번호 변경 실패', description: err.message, variant: 'error' })
     },
   })
 
   const handleSubmit = () => {
     setConfirmError('')
     if (newPassword !== confirmPassword) {
-      setConfirmError('Passwords do not match')
+      setConfirmError('비밀번호가 일치하지 않습니다')
       return
     }
     if (newPassword.length < 8) {
-      setConfirmError('New password must be at least 8 characters')
+      setConfirmError('새 비밀번호는 최소 8자 이상이어야 합니다')
       return
     }
     mutation.mutate()
@@ -269,38 +268,38 @@ function ChangePasswordSection() {
               marginBottom: '4px',
             }}
           >
-            Change Password
+            비밀번호 변경
           </h2>
           <p style={{ fontSize: '13px', color: 'var(--color-text-tertiary)' }}>
-            Update your account password
+            계정 비밀번호를 업데이트하세요
           </p>
         </div>
 
         <Input
-          label="Current Password"
+          label="현재 비밀번호"
           type="password"
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
-          placeholder="Enter current password"
+          placeholder="현재 비밀번호를 입력하세요"
         />
 
         <Input
-          label="New Password"
+          label="새 비밀번호"
           type="password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          placeholder="At least 8 characters"
+          placeholder="최소 8자 이상"
         />
 
         <Input
-          label="Confirm New Password"
+          label="새 비밀번호 확인"
           type="password"
           value={confirmPassword}
           onChange={(e) => {
             setConfirmPassword(e.target.value)
             if (confirmError) setConfirmError('')
           }}
-          placeholder="Repeat new password"
+          placeholder="새 비밀번호를 다시 입력하세요"
           error={confirmError}
         />
 
@@ -311,7 +310,7 @@ function ChangePasswordSection() {
           isLoading={mutation.isPending}
           disabled={!canSubmit}
         >
-          Update Password
+          비밀번호 변경
         </Button>
       </div>
     </Card>
@@ -324,9 +323,9 @@ function ThemeSection() {
   const { theme, setTheme } = useTheme()
 
   const options: { value: 'light' | 'dark' | 'system'; label: string; icon: string }[] = [
-    { value: 'light', label: 'Light', icon: '☀️' },
-    { value: 'dark', label: 'Dark', icon: '🌙' },
-    { value: 'system', label: 'System', icon: '💻' },
+    { value: 'light', label: '라이트', icon: '☀️' },
+    { value: 'dark', label: '다크', icon: '🌙' },
+    { value: 'system', label: '시스템', icon: '💻' },
   ]
 
   return (
@@ -341,10 +340,10 @@ function ThemeSection() {
               marginBottom: '4px',
             }}
           >
-            Appearance
+            테마
           </h2>
           <p style={{ fontSize: '13px', color: 'var(--color-text-tertiary)' }}>
-            Choose your preferred color theme
+            원하는 색상 테마를 선택하세요
           </p>
         </div>
 

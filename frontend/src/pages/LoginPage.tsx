@@ -70,7 +70,7 @@ const LoginPage: React.FC = () => {
       navigate('/generate', { replace: true })
     } catch (err) {
       const msg =
-        err instanceof Error ? err.message : 'Invalid username or password'
+        err instanceof Error ? err.message : '아이디 또는 비밀번호가 올바르지 않습니다'
       setError(msg)
     } finally {
       setIsLoading(false)
@@ -150,7 +150,7 @@ const LoginPage: React.FC = () => {
               Image Studio
             </h1>
             <p className="text-sm text-[var(--text-muted)] mt-1">
-              Sign in to your account
+              계정에 로그인하세요
             </p>
           </motion.div>
 
@@ -158,9 +158,9 @@ const LoginPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <motion.div variants={itemVariants}>
               <Input
-                label="Username"
+                label="아이디"
                 type="text"
-                placeholder="Enter your username"
+                placeholder="아이디를 입력하세요"
                 value={username}
                 onChange={(e) => {
                   setUsername(e.target.value)
@@ -175,9 +175,9 @@ const LoginPage: React.FC = () => {
 
             <motion.div variants={itemVariants}>
               <Input
-                label="Password"
+                label="비밀번호"
                 type="password"
-                placeholder="Enter your password"
+                placeholder="비밀번호를 입력하세요"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value)
@@ -223,7 +223,7 @@ const LoginPage: React.FC = () => {
                 isLoading={isLoading}
                 className="w-full"
               >
-                {isLoading ? 'Signing in…' : 'Sign in'}
+                {isLoading ? '로그인 중…' : '로그인'}
               </Button>
             </motion.div>
           </form>

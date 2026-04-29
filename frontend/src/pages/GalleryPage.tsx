@@ -18,9 +18,9 @@ interface ImageRecord {
 }
 
 const FILTER_TABS = [
-  { label: 'All', value: 'all' },
-  { label: 'Generated', value: 'generate' },
-  { label: 'Edited', value: 'edit' },
+  { label: '전체', value: 'all' },
+  { label: '생성됨', value: 'generate' },
+  { label: '편집됨', value: 'edit' },
 ]
 
 const PAGE_SIZE = 20
@@ -95,14 +95,14 @@ export default function GalleryPage() {
         }
       )
       queryClient.invalidateQueries({ queryKey: ['images', 'recent'] })
-      toast({ title: 'Image deleted', variant: 'success' })
+      toast({ title: '이미지가 삭제되었습니다', variant: 'success' })
     },
     [queryClient, filter, toast]
   )
 
   const handleCopyPrompt = (prompt: string) => {
     navigator.clipboard.writeText(prompt).catch(() => {})
-    toast({ title: 'Prompt copied to clipboard', variant: 'success' })
+    toast({ title: '프롬프트가 클립보드에 복사되었습니다', variant: 'success' })
   }
 
   return (
@@ -127,12 +127,12 @@ export default function GalleryPage() {
                 marginBottom: '6px',
               }}
             >
-              Gallery
+              갤러리
             </h1>
             <p style={{ color: 'var(--color-text-secondary)', fontSize: '15px' }}>
               {isLoading
-                ? 'Loading your images…'
-                : `${totalCount}${hasNextPage ? '+' : ''} image${totalCount !== 1 ? 's' : ''}`}
+                ? '이미지를 불러오는 중…'
+                : `총 ${totalCount}${hasNextPage ? '+' : ''}개의 이미지`}
             </p>
           </div>
 
@@ -170,10 +170,10 @@ export default function GalleryPage() {
           >
             <div style={{ fontSize: '48px', marginBottom: '12px' }}>⚠️</div>
             <p style={{ fontSize: '16px', fontWeight: 600, marginBottom: '6px' }}>
-              Failed to load images
+              이미지를 불러오지 못했습니다
             </p>
             <p style={{ fontSize: '14px', color: 'var(--color-text-tertiary)' }}>
-              Please try refreshing the page.
+              페이지를 새로고침해 주세요.
             </p>
           </div>
         )}
@@ -233,7 +233,7 @@ export default function GalleryPage() {
               }}
             />
             <span style={{ color: 'var(--color-text-secondary)', fontSize: '14px', alignSelf: 'center' }}>
-              Loading more…
+              더 불러오는 중…
             </span>
           </div>
         )}
@@ -248,7 +248,7 @@ export default function GalleryPage() {
               padding: '24px',
             }}
           >
-            You've seen all {totalCount} image{totalCount !== 1 ? 's' : ''}
+            총 {totalCount}개의 이미지를 모두 확인했습니다
           </p>
         )}
       </div>
@@ -266,18 +266,18 @@ function EmptyState({ filter }: { filter: string }) {
   const messages: Record<string, { icon: string; title: string; desc: string }> = {
     all: {
       icon: '🖼️',
-      title: 'No images yet',
-      desc: 'Generate your first image to see it appear here.',
+      title: '아직 이미지가 없습니다',
+      desc: '첫 번째 이미지를 생성하면 여기에 표시됩니다.',
     },
     generate: {
       icon: '✨',
-      title: 'No generated images',
-      desc: 'Head over to the Generate page to create your first AI image.',
+      title: '생성된 이미지가 없습니다',
+      desc: '생성 페이지로 이동해서 첫 번째 AI 이미지를 만들어 보세요.',
     },
     edit: {
       icon: '✏️',
-      title: 'No edited images',
-      desc: 'Use the Edit page to modify existing images with AI.',
+      title: '편집된 이미지가 없습니다',
+      desc: '편집 페이지에서 AI로 기존 이미지를 수정해 보세요.',
     },
   }
 

@@ -198,14 +198,14 @@ export default function MaskCanvas({ imageUrl, width, height, onMaskChange }: Ma
                 gap: '5px',
               }}
             >
-              {t === 'brush' ? '🖌️' : '🧹'} {t.charAt(0).toUpperCase() + t.slice(1)}
+              {t === 'brush' ? '🖌️ 브러시' : '🧹 지우개'}
             </button>
           ))}
         </div>
 
         <div className="flex items-center gap-2 flex-1">
           <span style={{ fontSize: '12px', color: 'var(--color-text-tertiary)', whiteSpace: 'nowrap' }}>
-            Size: {brushSize}px
+            크기: {brushSize}px
           </span>
           <input
             type="range"
@@ -232,7 +232,7 @@ export default function MaskCanvas({ imageUrl, width, height, onMaskChange }: Ma
             transition: 'all 0.15s',
           }}
         >
-          Clear
+          초기화
         </button>
       </div>
 
@@ -286,7 +286,7 @@ export default function MaskCanvas({ imageUrl, width, height, onMaskChange }: Ma
       </div>
 
       <p style={{ fontSize: '12px', color: 'var(--color-text-tertiary)', lineHeight: '1.5' }}>
-        Paint over the areas you want to <strong>edit</strong>. Unpainted areas will be preserved.
+        <strong>편집</strong>할 영역 위에 칠하세요. 칠하지 않은 부분은 그대로 유지됩니다.
       </p>
     </div>
   )
